@@ -186,8 +186,8 @@
             padding: 4px 8px;
             border-radius: 4px;
             animation: scatter 2s ease-out forwards, pulse 1s infinite alternate;
-            white-space: nowrap; /* Prevent line breaks to keep full text visible */
-            max-width: 90vw; /* Limit width to screen */
+            white-space: nowrap;
+            max-width: 70vw;
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -816,37 +816,30 @@
                     "All your dreams come true, with blessings! ✨"
                 ];
                 const giftRect = giftBtn.getBoundingClientRect();
-                const screenWidth = window.innerWidth;
                 const screenHeight = window.innerHeight;
                 lines.forEach((text, index) => {
                     const line = document.createElement('div');
                     line.className = 'love-line';
                     line.textContent = text;
-                    line.style.top = `${giftRect.top + giftRect.height / 2}px`;
-                    line.style.left = `${giftRect.left + giftRect.width / 2}px`;
-                    let tx, ty;
-                    const maxOffset = Math.min(screenWidth / 3, 120); // Reduced range for fit
+                    line.style.left = `${window.innerWidth * 0.25}px`; // 25% from left edge (~120px on 480px wide screen)
+                    let ty;
                     const minY = 50; // Top margin
-                    const maxY = screenHeight - 100; // Bottom margin
-                    if (index === 0) { // Top-left
-                        tx = -Math.random() * maxOffset - 40;
-                        ty = -Math.random() * maxOffset - 30;
-                    } else if (index === 1) { // Top-right
-                        tx = Math.random() * maxOffset + 40;
-                        ty = -Math.random() * maxOffset - 30;
-                    } else if (index === 2) { // Bottom-left
-                        tx = -Math.random() * maxOffset - 40;
-                        ty = Math.random() * maxOffset + 30;
-                    } else { // Bottom-right
-                        tx = Math.random() * maxOffset + 40;
-                        ty = Math.random() * maxOffset + 30;
+                    const maxY = screenHeight - 50; // Bottom margin
+                    if (index === 0) { // Above gift, higher
+                        ty = -150;
+                    } else if (index === 1) { // Above gift, lower
+                        ty = -100;
+                    } else if (index === 2) { // Below gift, higher
+                        ty = 100;
+                    } else { // Below gift, lower
+                        ty = 150;
                     }
                     // Clamp to screen bounds
                     ty = Math.max(minY - giftRect.top, Math.min(ty, maxY - giftRect.top));
-                    tx = Math.max(20 - giftRect.left, Math.min(tx, screenWidth - 20 - giftRect.left));
-                    line.style.setProperty('--translate-x', `${tx}px`);
+                    line.style.top = `${giftRect.top + giftRect.height / 2}px`;
+                    line.style.setProperty('--translate-x', '0px');
                     line.style.setProperty('--translate-y', `${ty}px`);
-                    line.style.setProperty('--rotate', `${(Math.random() - 0.5) * 30}deg`); // Reduced rotation for fit
+                    line.style.setProperty('--rotate', `${(Math.random() - 0.5) * 5}deg`);
                     line.style.animationDelay = `${index * 0.3}s`;
                     document.body.appendChild(line);
                     setTimeout(() => line.remove(), 8000);
@@ -909,7 +902,7 @@
                         finishCakeCut();
                     } else {
                         const prev = cakeNote.textContent;
-                        cakeNote.textContent = '';
+                        cakeNote.textContent = 'Love You Meri Jann';
                         setTimeout(() => { if (!cakeCut) cakeNote.textContent = prev; }, 1000);
                     }
                 });
@@ -1114,7 +1107,7 @@
                     if (animationFrameId) cancelAnimationFrame(animationFrameId);
                     animationFrameId = requestAnimationFrame(() => {
                         const mx = Math.max(-120, Math.min(120, touchDelta));
-                        const rot = mx / 10; // Slight rotation based on drag
+                        const rot = mx / 10;
                         centerImg.style.transform = `translateX(${mx}px) scale(0.98) rotate(${rot}deg)`;
                         centerImg.style.opacity = Math.max(0.6, 1 - Math.abs(mx) / 150);
                     });
