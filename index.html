@@ -186,6 +186,10 @@
             padding: 4px 8px;
             border-radius: 4px;
             animation: scatter 2s ease-out forwards, pulse 1s infinite alternate;
+            white-space: nowrap; /* Prevent line breaks to keep full text visible */
+            max-width: 90vw; /* Limit width to screen */
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         @keyframes scatter {
@@ -557,7 +561,7 @@
             box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
             border: 6px solid rgba(255, 255, 255, 0.06);
             object-fit: cover;
-            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+            transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), rotate 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
             position: relative;
         }
 
@@ -812,6 +816,8 @@
                     "All your dreams come true, with blessings! ✨"
                 ];
                 const giftRect = giftBtn.getBoundingClientRect();
+                const screenWidth = window.innerWidth;
+                const screenHeight = window.innerHeight;
                 lines.forEach((text, index) => {
                     const line = document.createElement('div');
                     line.className = 'love-line';
@@ -819,22 +825,28 @@
                     line.style.top = `${giftRect.top + giftRect.height / 2}px`;
                     line.style.left = `${giftRect.left + giftRect.width / 2}px`;
                     let tx, ty;
+                    const maxOffset = Math.min(screenWidth / 3, 120); // Reduced range for fit
+                    const minY = 50; // Top margin
+                    const maxY = screenHeight - 100; // Bottom margin
                     if (index === 0) { // Top-left
-                        tx = -Math.random() * 150 - 80;
-                        ty = -Math.random() * 120 - 40;
+                        tx = -Math.random() * maxOffset - 40;
+                        ty = -Math.random() * maxOffset - 30;
                     } else if (index === 1) { // Top-right
-                        tx = Math.random() * 150 + 80;
-                        ty = -Math.random() * 120 - 40;
+                        tx = Math.random() * maxOffset + 40;
+                        ty = -Math.random() * maxOffset - 30;
                     } else if (index === 2) { // Bottom-left
-                        tx = -Math.random() * 150 - 80;
-                        ty = Math.random() * 120 + 40;
+                        tx = -Math.random() * maxOffset - 40;
+                        ty = Math.random() * maxOffset + 30;
                     } else { // Bottom-right
-                        tx = Math.random() * 150 + 80;
-                        ty = Math.random() * 120 + 40;
+                        tx = Math.random() * maxOffset + 40;
+                        ty = Math.random() * maxOffset + 30;
                     }
+                    // Clamp to screen bounds
+                    ty = Math.max(minY - giftRect.top, Math.min(ty, maxY - giftRect.top));
+                    tx = Math.max(20 - giftRect.left, Math.min(tx, screenWidth - 20 - giftRect.left));
                     line.style.setProperty('--translate-x', `${tx}px`);
                     line.style.setProperty('--translate-y', `${ty}px`);
-                    line.style.setProperty('--rotate', `${(Math.random() - 0.5) * 90}deg`);
+                    line.style.setProperty('--rotate', `${(Math.random() - 0.5) * 30}deg`); // Reduced rotation for fit
                     line.style.animationDelay = `${index * 0.3}s`;
                     document.body.appendChild(line);
                     setTimeout(() => line.remove(), 8000);
@@ -1081,46 +1093,56 @@
             }
         }
 
-        let touchActive = false, touchStartX = 0, touchDelta = 0;
+        let touchActive = false, touchStartX = 0, touchDelta = 0, lastTouchX = 0;
+        let animationFrameId = null;
         function attachGalleryInteractions() {
             try {
                 const target = document.querySelector('.right-pane');
                 target.addEventListener('touchstart', (e) => {
+                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
                     touchActive = true;
                     touchStartX = e.touches[0].clientX;
+                    lastTouchX = touchStartX;
                     touchDelta = 0;
-                    centerImg.style.transition = 'transform 0.1s ease-out';
+                    centerImg.style.transition = 'none';
                 });
                 target.addEventListener('touchmove', (e) => {
                     if (!touchActive) return;
-                    touchDelta = e.touches[0].clientX - touchStartX;
-                    const mx = Math.max(-120, Math.min(120, touchDelta));
-                    centerImg.style.transform = `translateX(${mx}px) scale(0.98)`;
-                    centerImg.style.opacity = Math.max(0.5, 1 - Math.abs(mx) / 200);
+                    const currentX = e.touches[0].clientX;
+                    touchDelta = currentX - touchStartX;
+                    lastTouchX = currentX;
+                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                    animationFrameId = requestAnimationFrame(() => {
+                        const mx = Math.max(-120, Math.min(120, touchDelta));
+                        const rot = mx / 10; // Slight rotation based on drag
+                        centerImg.style.transform = `translateX(${mx}px) scale(0.98) rotate(${rot}deg)`;
+                        centerImg.style.opacity = Math.max(0.6, 1 - Math.abs(mx) / 150);
+                    });
                 });
                 target.addEventListener('touchend', () => {
                     if (!touchActive) return;
                     touchActive = false;
+                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
                     if (Math.abs(touchDelta) > 50) {
-                        if (touchDelta < 0) {
-                            centerImg.style.transform = `translateX(-100%) scale(0.98)`;
-                            centerImg.style.opacity = 0;
-                            setTimeout(() => nextImage(), 300);
-                        } else {
-                            centerImg.style.transform = `translateX(100%) scale(0.98)`;
-                            centerImg.style.opacity = 0;
-                            setTimeout(() => prevImage(), 300);
-                        }
+                        const direction = touchDelta < 0 ? -1 : 1;
+                        centerImg.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                        centerImg.style.transform = `translateX(${direction * 100}%) scale(0.98) rotate(${direction * 5}deg)`;
+                        centerImg.style.opacity = 0;
+                        setTimeout(() => {
+                            if (direction < 0) nextImage();
+                            else prevImage();
+                        }, 400);
                     } else {
-                        centerImg.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-                        centerImg.style.transform = 'translateX(0) scale(1)';
+                        centerImg.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                        centerImg.style.transform = 'translateX(0) scale(1) rotate(0deg)';
                         centerImg.style.opacity = 1;
                     }
                 });
                 target.addEventListener('touchcancel', () => {
                     touchActive = false;
-                    centerImg.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-                    centerImg.style.transform = 'translateX(0) scale(1)';
+                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                    centerImg.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                    centerImg.style.transform = 'translateX(0) scale(1) rotate(0deg)';
                     centerImg.style.opacity = 1;
                 });
             } catch (e) {
@@ -1132,13 +1154,14 @@
             try {
                 const newIndex = ((i % TOTAL) + TOTAL) % TOTAL;
                 applyBackground(newIndex);
+                const direction = i > currentIndex ? 1 : -1;
                 centerImg.style.transition = 'none';
-                centerImg.style.transform = i > currentIndex ? `translateX(20%) scale(0.98)` : `translateX(-20%) scale(0.98)`;
+                centerImg.style.transform = `translateX(${direction * 30}%) scale(0.98) rotate(${direction * 3}deg)`;
                 centerImg.style.opacity = 0;
                 setTimeout(() => {
                     centerImg.src = IMAGES[newIndex] || 'https://via.placeholder.com/800';
-                    centerImg.style.transition = 'transform 0.4s ease-out, opacity 0.4s ease-out';
-                    centerImg.style.transform = 'translateX(0) scale(1)';
+                    centerImg.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                    centerImg.style.transform = 'translateX(0) scale(1) rotate(0deg)';
                     centerImg.style.opacity = 1;
                     currentIndex = newIndex;
                     startTypewriter(currentIndex);
