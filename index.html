@@ -557,7 +557,7 @@
             box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
             border: 6px solid rgba(255, 255, 255, 0.06);
             object-fit: cover;
-            transition: transform 0.3s ease, opacity 0.45s ease;
+            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
             position: relative;
         }
 
@@ -1089,21 +1089,39 @@
                     touchActive = true;
                     touchStartX = e.touches[0].clientX;
                     touchDelta = 0;
+                    centerImg.style.transition = 'transform 0.1s ease-out';
                 });
                 target.addEventListener('touchmove', (e) => {
                     if (!touchActive) return;
                     touchDelta = e.touches[0].clientX - touchStartX;
-                    const mx = Math.max(-100, Math.min(100, touchDelta));
-                    centerImg.style.transform = `translateX(${mx}px) scale(0.995)`;
+                    const mx = Math.max(-120, Math.min(120, touchDelta));
+                    centerImg.style.transform = `translateX(${mx}px) scale(0.98)`;
+                    centerImg.style.opacity = Math.max(0.5, 1 - Math.abs(mx) / 200);
                 });
                 target.addEventListener('touchend', () => {
                     if (!touchActive) return;
                     touchActive = false;
-                    centerImg.style.transform = '';
-                    if (Math.abs(touchDelta) > 60) {
-                        if (touchDelta < 0) nextImage();
-                        else prevImage();
+                    if (Math.abs(touchDelta) > 50) {
+                        if (touchDelta < 0) {
+                            centerImg.style.transform = `translateX(-100%) scale(0.98)`;
+                            centerImg.style.opacity = 0;
+                            setTimeout(() => nextImage(), 300);
+                        } else {
+                            centerImg.style.transform = `translateX(100%) scale(0.98)`;
+                            centerImg.style.opacity = 0;
+                            setTimeout(() => prevImage(), 300);
+                        }
+                    } else {
+                        centerImg.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                        centerImg.style.transform = 'translateX(0) scale(1)';
+                        centerImg.style.opacity = 1;
                     }
+                });
+                target.addEventListener('touchcancel', () => {
+                    touchActive = false;
+                    centerImg.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                    centerImg.style.transform = 'translateX(0) scale(1)';
+                    centerImg.style.opacity = 1;
                 });
             } catch (e) {
                 console.error('Error in attachGalleryInteractions:', e);
@@ -1114,13 +1132,17 @@
             try {
                 const newIndex = ((i % TOTAL) + TOTAL) % TOTAL;
                 applyBackground(newIndex);
+                centerImg.style.transition = 'none';
+                centerImg.style.transform = i > currentIndex ? `translateX(20%) scale(0.98)` : `translateX(-20%) scale(0.98)`;
                 centerImg.style.opacity = 0;
                 setTimeout(() => {
                     centerImg.src = IMAGES[newIndex] || 'https://via.placeholder.com/800';
+                    centerImg.style.transition = 'transform 0.4s ease-out, opacity 0.4s ease-out';
+                    centerImg.style.transform = 'translateX(0) scale(1)';
                     centerImg.style.opacity = 1;
                     currentIndex = newIndex;
                     startTypewriter(currentIndex);
-                }, 100);
+                }, 50);
             } catch (e) {
                 console.error('Error in setIndex:', e);
             }
