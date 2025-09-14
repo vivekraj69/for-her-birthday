@@ -678,7 +678,7 @@
 
     <div id="gallery" class="gallery hidden" aria-hidden="true">
         <div class="gallery-bg"></div>
-        <div id="date">17 September</div>
+        <div id="date"></div>
         <div class="gallery-inner">
             <aside class="left-pane" aria-label="left pane">
                 <div class="tree-wrap">
@@ -690,7 +690,7 @@
                 </div>
             </aside>
             <main class="right-pane" aria-label="image pane">
-                <div class="nav-hint">Swipe to change images</div>
+                <div class="nav-hint"></div>
                 <div class="center-image-wrap">
                     <img id="centerImg" class="center-image" src="" alt="current large"/>
                 </div>
@@ -909,7 +909,7 @@
                         finishCakeCut();
                     } else {
                         const prev = cakeNote.textContent;
-                        cakeNote.textContent = 'Swipe harder to cut!';
+                        cakeNote.textContent = '';
                         setTimeout(() => { if (!cakeCut) cakeNote.textContent = prev; }, 1000);
                     }
                 });
