@@ -190,14 +190,8 @@
         }
 
         @keyframes scatter {
-            0% {
-                opacity: 0;
-                transform: translate(0, 0) rotate(0deg) scale(0.8);
-            }
-            100% {
-                opacity: 1;
-                transform: translate(var(--translate-x), var(--translate-y)) rotate(var(--rotate)) scale(1);
-            }
+            0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.8); }
+            100% { opacity: 1; transform: translate(var(--translate-x), var(--translate-y)) rotate(var(--rotate)) scale(1); }
         }
 
         @keyframes pulse {
@@ -613,6 +607,111 @@
             100% { box-shadow: 0 0 16px #ff0; }
         }
 
+        /* Love Scene Styles */
+        .love-scene {
+            display: none;
+            z-index: 18;
+            min-height: 100vh;
+            width: 100vw;
+            padding: 16px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            background: linear-gradient(180deg, #fff0f4, #fff7fb);
+        }
+
+        .love-question {
+            font-size: 2em;
+            font-style: italic;
+            color: var(--accent);
+            margin-bottom: 20px;
+            z-index: 20;
+        }
+
+        .love-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            z-index: 20;
+        }
+
+        .love-button {
+            padding: 10px 20px;
+            background: transparent;
+            border: 2px solid var(--pink);
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.3em;
+            border-radius: 5px;
+            cursor: pointer;
+            pointer-events: auto;
+            z-index: 20;
+            transition: transform 0.2s, border-color 0.2s;
+            touch-action: manipulation;
+        }
+
+        .love-button:hover {
+            transform: scale(1.05);
+            border-color: var(--accent);
+        }
+
+        .love-button:active {
+            transform: scale(0.95);
+        }
+
+        .love-message {
+            font-size: 1.5em;
+            color: #6b3a48;
+            margin-bottom: 20px;
+            display: none;
+            z-index: 20;
+        }
+
+        .love-emoji {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .love-next-wrapper {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 20;
+        }
+
+        .love-next-wrapper div {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5em;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .love-next-button {
+            padding: 10px 20px;
+            background: transparent;
+            border: 2px solid var(--pink);
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.3em;
+            border-radius: 5px;
+            cursor: pointer;
+            pointer-events: auto;
+            z-index: 20;
+            transition: transform 0.2s, border-color 0.2s;
+            touch-action: manipulation;
+        }
+
+        .love-next-button:hover {
+            transform: scale(1.05);
+            border-color: var(--accent);
+        }
+
+        .love-next-button:active {
+            transform: scale(0.95);
+        }
+
         @media (min-width: 600px) {
             .start-card { max-width: 400px; }
             .gift { width: 220px; height: 220px; }
@@ -634,7 +733,7 @@
         <div class="start-card">
             <div class="title">Happy Birthday Kaku</div>
             <div class="subtitle">A special surprise awaits!</div>
-            <div id="giftBtn" class="gift" title="Tap to open">
+            <div id="giftBtn" class="gift">
                 <div class="ribbon">For Kaku</div>
                 <div class="lights"></div>
                 <svg width="80" height="80" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -668,14 +767,31 @@
                     <div id="cakeTitle" class="cake-title">Happy Birthday Kaku ❤</div>
                 </div>
             </div>
-            <div id="cakeNote" class="cake-note">Swipe the cake to cut it</div>
+            <div id="cakeNote" class="cake-note">Happy Birthday Meri Jaan</div>
         </div>
-        <button id="nextButton" onclick="openGalleryAuto()">Next</button>
+        <button id="nextButton">Next</button>
+    </div>
+
+    <div id="loveScene" class="love-scene hidden" aria-hidden="true">
+        <div id="loveQuestion" class="love-question">Kitna Pyar Krti Hai Tu Mujse</div>
+        <div class="love-buttons">
+            <button id="noLoveBtn" class="love-button">Nahi Karti😒</button>
+            <button id="yesLoveBtn" class="love-button">Bohut Krti Hu❤️😘</button>
+        </div>
+        <div id="loveResponse" class="love-message">
+            <div id="loveEmoji" class="love-emoji"></div>
+            <div id="loveText"></div>
+        </div>
+        <div id="nextPrompt" class="love-message hidden"></div>
+        <div id="loveNextWrapper" class="love-next-wrapper hidden">
+            <div>Ye Lo Ab Ye Apke Lye💕</div>
+            <button id="loveNextBtn" class="love-next-button">Next</button>
+        </div>
     </div>
 
     <div id="gallery" class="gallery hidden" aria-hidden="true">
         <div class="gallery-bg"></div>
-        <div id="date">17 September</div>
+        <div id="date"></div>
         <div class="gallery-inner">
             <aside class="left-pane" aria-label="left pane">
                 <div class="tree-wrap">
@@ -687,7 +803,7 @@
                 </div>
             </aside>
             <main class="right-pane" aria-label="image pane">
-                <div class="nav-hint">Swipe to change images</div>
+                <div class="nav-hint"></div>
                 <div class="center-image-wrap">
                     <img id="centerImg" class="center-image" src="" alt="current large"/>
                 </div>
@@ -725,7 +841,7 @@
             "Jitni bhi khushiyan lu, kam pad jaaye tera pyaar — happy birthday meri jaan 🌹",
             "Teri khushi mein hi meri khushi chhupi hai, tera har sapna poora ho yehi dua hai 🎂",
             "Tere pyaar ne jeena sikhaya, janamdin pe tu mile khushiyon ka sahara 💕",
-            "Tere liye meri har dua roshan rahe, tere sapne bulbule ki tarah phale 🌟",
+            "Tere liye likhi har dua roshan rahe, tere sapne bulbule ki tarah phale 🌟",
             "Tere honthon ki muskaan meri pehchaan, tu sada rahe yahaan ❤",
             "Teri baaton mein khushbu si basi ho, tu hamesha rahe sada mastani 🌸",
             "Tere liye main duniya saja doon, tu ho to har manzil asaan hai 💖",
@@ -745,7 +861,7 @@
             "Teri ek jhalak se dil beqaraar hai, tera janamdin meri zindagi ka tyohar hai 🌟",
             "Tere pyaar ka rang chhaya hai, har pal tera saath dil ko sukoon de jaya hai 💕",
             "Tu hai toh har raah roshan hai, tera janamdin meri zindagi ka jashn hai 🎂",
-            "Tere bina ye dil adhura sa lage, tera saath hi meri duniya ko sajaye 🌹",
+            "Tere bina har pal adhura sa lage, tera saath hi meri duniya ko sajaye 🌹",
             "Teri muskan se har gham bhul jaye, tera janamdin dil se dil tak jaye ❤",
             "Tere liye chand sitare bhi kam hain, tu hai toh meri duniya ke sabse anmol nazaare hain ✨",
             "Teri har baat dil ko chhoo jaye, tera janamdin har pal yaadgaar banaye 💖",
@@ -771,6 +887,16 @@
         const cakeTitle = document.getElementById('cakeTitle');
         const cakeNote = document.getElementById('cakeNote');
         const nextButton = document.getElementById('nextButton');
+        const loveScene = document.getElementById('loveScene');
+        const noLoveBtn = document.getElementById('noLoveBtn');
+        const yesLoveBtn = document.getElementById('yesLoveBtn');
+        const loveQuestion = document.getElementById('loveQuestion');
+        const loveResponse = document.getElementById('loveResponse');
+        const loveEmoji = document.getElementById('loveEmoji');
+        const loveText = document.getElementById('loveText');
+        const nextPrompt = document.getElementById('nextPrompt');
+        const loveNextWrapper = document.getElementById('loveNextWrapper');
+        const loveNextBtn = document.getElementById('loveNextBtn');
         const gallery = document.getElementById('gallery');
         const galleryBg = document.querySelector('.gallery-bg');
         const shayariEl = document.getElementById('shayari');
@@ -780,6 +906,98 @@
 
         let currentIndex = 0;
         let cakeCut = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                console.log('DOM fully loaded, setting up button listeners');
+                setupButtonListeners();
+            } catch (e) {
+                console.error('Error in DOMContentLoaded:', e);
+            }
+        });
+
+        function setupButtonListeners() {
+            try {
+                if (noLoveBtn && yesLoveBtn && loveNextBtn) {
+                    console.log('Binding button listeners');
+                    noLoveBtn.addEventListener('click', handleNoLove);
+                    noLoveBtn.addEventListener('touchstart', handleNoLove);
+                    yesLoveBtn.addEventListener('click', handleYesLove);
+                    yesLoveBtn.addEventListener('touchstart', handleYesLove);
+                    loveNextBtn.addEventListener('click', () => {
+                        console.log('Next button clicked/touched');
+                        openGalleryAuto();
+                    });
+                    loveNextBtn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        console.log('Next button touched');
+                        openGalleryAuto();
+                    });
+                } else {
+                    console.error('Buttons not found:', { noLoveBtn, yesLoveBtn, loveNextBtn });
+                }
+            } catch (e) {
+                console.error('Error in setupButtonListeners:', e);
+            }
+        }
+
+        function handleNoLove(e) {
+            e.preventDefault();
+            try {
+                console.log('No Love button clicked/touched');
+                document.querySelector('.love-buttons').style.display = 'none';
+                loveResponse.style.display = 'block';
+                loveEmoji.textContent = '😒';
+                loveText.textContent = 'Kya Nahi Karti... Ja Ruth Gya Mai';
+                setTimeout(() => {
+                    console.log('Showing next prompt');
+                    loveResponse.style.display = 'none';
+                    nextPrompt.style.display = 'block';
+                    nextPrompt.textContent = 'Chal Ek Bar Aur Puchta Hu Bta Kitna Pyar Karti Hai Mujse';
+                    setTimeout(() => {
+                        console.log('Restoring buttons');
+                        nextPrompt.style.display = 'none';
+                        document.querySelector('.love-buttons').style.display = 'flex';
+                    }, 5000);
+                }, 5000);
+            } catch (e) {
+                console.error('Error in handleNoLove:', e);
+            }
+        }
+
+        function handleYesLove(e) {
+            e.preventDefault();
+            try {
+                console.log('Yes Love button clicked/touched');
+                document.querySelector('.love-question').style.display = 'none';
+                document.querySelector('.love-buttons').style.display = 'none';
+                loveResponse.style.display = 'block';
+                loveEmoji.textContent = '😘❤️💕';
+                loveText.textContent = 'HeHeHeHeHeHe mko pta tha tu bohut pyar krti hai mujse';
+                setTimeout(() => {
+                    console.log('Showing next wrapper');
+                    loveResponse.style.display = 'none';
+                    loveNextWrapper.style.display = 'flex';
+                }, 5000);
+            } catch (e) {
+                console.error('Error in handleYesLove:', e);
+            }
+        }
+
+        function resetLoveScene() {
+            try {
+                console.log('Resetting love scene');
+                document.querySelector('.love-question').style.display = 'block';
+                document.querySelector('.love-buttons').style.display = 'flex';
+                loveResponse.style.display = 'none';
+                nextPrompt.style.display = 'none';
+                loveNextWrapper.style.display = 'none';
+                loveEmoji.textContent = '';
+                loveText.textContent = '';
+            } catch (e) {
+                console.error('Error in resetLoveScene:', e);
+            }
+        }
 
         function spawnBgPuppies(n = 8) {
             try {
@@ -818,20 +1036,19 @@
                     const line = document.createElement('div');
                     line.className = 'love-line';
                     line.textContent = text;
-                    line.style.left = `${window.innerWidth * 0.2}px`; // 20% from left edge (~96px on 480px wide screen)
+                    line.style.left = `${window.innerWidth * 0.2}px`;
                     let ty;
-                    const minY = 50; // Top margin
-                    const maxY = screenHeight - 50; // Bottom margin
-                    if (index === 0) { // Above gift, higher
+                    const minY = 50;
+                    const maxY = screenHeight - 50;
+                    if (index === 0) {
                         ty = -150;
-                    } else if (index === 1) { // Above gift, lower
+                    } else if (index === 1) {
                         ty = -100;
-                    } else if (index === 2) { // Below gift, higher
+                    } else if (index === 2) {
                         ty = 100;
-                    } else { // Below gift, lower
+                    } else {
                         ty = 150;
                     }
-                    // Clamp to screen bounds
                     ty = Math.max(minY - giftRect.top, Math.min(ty, maxY - giftRect.top));
                     line.style.top = `${giftRect.top + giftRect.height / 2}px`;
                     line.style.setProperty('--translate-x', '0px');
@@ -1022,10 +1239,26 @@
             }
         }
 
+        nextButton.addEventListener('click', openLoveScene);
+        nextButton.addEventListener('touchstart', openLoveScene);
+
+        function openLoveScene() {
+            try {
+                console.log('Opening love scene');
+                cakeScene.style.display = 'none';
+                loveScene.classList.remove('hidden');
+                loveScene.style.display = 'flex';
+                loveScene.scrollIntoView({ behavior: 'smooth' });
+                resetLoveScene();
+            } catch (e) {
+                console.error('Error in openLoveScene:', e);
+            }
+        }
+
         function openGalleryAuto() {
             try {
                 console.log('Opening gallery');
-                cakeScene.style.display = 'none';
+                loveScene.style.display = 'none';
                 gallery.classList.remove('hidden');
                 gallery.style.display = 'flex';
                 currentIndex = 0;
